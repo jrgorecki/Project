@@ -46,6 +46,9 @@
 %token INT
 %token ARROW
 %token LIST
+%token TRUE
+%token FALSE
+%token FUN
 %token EOF
 
 %right SEMICOL ARROW
@@ -56,7 +59,25 @@
 %right APPEND 
 %left PLUS MINUS
 %left MULT DIV
-%nonassoc NOT HD TL ISE LIST PRINT FN
+%nonassoc NOT HD TL ISE LIST PRINT FUN
 
+//fix stntax 
 %start Main
-%type Main
+%type Main Expr AtomicE expr
+%type Type htype
+%type Bindings binding list
+%type Binding binding
+%type Const Con
+%type TypeName tname
+%type AppE 
+
+%%
+Main:
+	Expr EOF {$1}
+
+Expr:
+	  AtomicE						{$1}
+	| AppE							{$1}
+	| IF Expr THEN Expr ELSE Expr	{If( $2 , $4 , $6 )}
+	| NOT Expr						{Op1("not", $2 )}
+	| 	

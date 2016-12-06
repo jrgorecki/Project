@@ -8,6 +8,8 @@
 
 *)
 
+let x = [1;2;3]
+
 // Mac Os
    #r "/Users/tinelli/Desktop/Project/bin/FsLexYacc.Runtime.dll"
    #load "/Users/tinelli/Desktop/Project/Absyn.fs" 
