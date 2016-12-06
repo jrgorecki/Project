@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewFolder1", "NewFolder1", "{7695DFE1-3742-4CE9-AE61-548143423200}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DFCC891D-CC0F-4724-8A92-15F3F74ABAF1}"
+	ProjectSection(SolutionItems) = preProject
+		Absyn.fs = Absyn.fs
+		Env.fs = Env.fs
+		Inter.fs = Inter.fs
+		Lexer.fsl = Lexer.fsl
+		Parse.fs = Parse.fs
+		Parser.fsy = Parser.fsy
+		testing.fsx = testing.fsx
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

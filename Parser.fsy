@@ -1,0 +1,62 @@
+﻿%{
+ (* File Parser.FSy 
+    Parser for F# type expression sublanguage
+
+    To be completed
+  *)
+
+ open Absyn;
+%}
+
+%token <int> NAT 
+%token <string> NAME
+
+%token IF
+%token THEN
+%token ELSE
+%token NOT
+%token HD
+%token TL 
+%token ISE
+%token PRINT
+%token PLUS
+%token MINUS
+%token MULT
+%token DIV
+%token EQUAL
+%token NEQUAL
+%token LESSTHAN
+%token LESSTHANEQ
+%token APPEND
+%token SEMICOL
+%token LOCAL
+%token IN
+%token END
+%token FN
+%token ANONPTR
+%token LPAR
+%token RPAR
+%token EMPTYLIST
+%token COL
+%token VAR
+%token FUN
+%token REC
+%token UNIT
+%token BOOL
+%token INT
+%token ARROW
+%token LIST
+%token EOF
+
+%right SEMICOL ARROW
+%nonassoc IF
+%left ELSE
+%left EQUAL NEQUAL
+%nonassoc LESSTHAN LESSTHANEQ
+%right APPEND 
+%left PLUS MINUS
+%left MULT DIV
+%nonassoc NOT HD TL ISE LIST PRINT FN
+
+%start Main
+%type Main

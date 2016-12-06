@@ -1,0 +1,60 @@
+﻿{
+(* Lexer specification for the type expression language 
+
+   To be completed with more rules
+*)
+
+
+module Lexer
+
+open Microsoft.FSharp.Text.Lexing
+open Parser
+
+let lexemeAsString lexbuf = 
+  LexBuffer<char>.LexemeString lexbuf
+
+
+
+
+}
+
+let name = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*
+let nat = ['0'-'9']+
+
+rule Token = parse
+| [' ' '\t' '\r']   { Token lexbuf } 
+| '\n'			{ lexbuf.EndPos <- lexbuf.EndPos.NextLine; Token lexbuf }
+| "if"          { IF }
+| "then"        { THEN }
+| "else"        { NOT }
+| "hd"          { HD }
+| "tl"          { TL }
+| "ise"         { ISE }
+| "print"       { PRINT }
+| "local"       { LOCAL }
+| "in"          { IN }
+| "end"         { END }
+| "fn"          { FN }
+| "=>"          { ANONPTR }
+| '('           { LPAR }
+| ')'           { RPAR }
+| "[]"          { EMPTYLIST }
+| '+'           { PLUS }
+| '-'           { MINUS }
+| '*'           { MULT }
+| '/'           { DIV }
+| '='           { EQUAL }
+| "<>"          { NEQUAL }
+| '<'           { LESSTHAN }
+| "<="          { LESSTHANEQ }
+| "::"          { APPEND }
+| ';'           { SEMICOL }
+| ':'           { COL }
+| "->"          { ARROW }
+| "unit"        { UNIT }
+| "bool"        { BOOL }
+| "int"         { INT }
+| "list"        { LIST }
+| name          { NAME (lexemeAsString lexbuf) }
+| nat           { NAT NUM (System.Int32.Parse (lexemeAsString lexbuf)) }
+| eof           { EOF }
