@@ -8,20 +8,20 @@
 
 *)
 
-let x = [1;2;3]
+
 
 // Mac Os
-   #r "/Users/tinelli/Desktop/Project/bin/FsLexYacc.Runtime.dll"
-   #load "/Users/tinelli/Desktop/Project/Absyn.fs" 
-   #load "/Users/tinelli/Desktop/Project/Parser.fs"
-   #load "/Users/tinelli/Desktop/Project/Lexer.fs" 
-   #load "/Users/tinelli/Desktop/Project/Parse.fs" 
-   #load "/Users/tinelli/Desktop/Project/Env.fs" 
-   #load "/Users/tinelli/Desktop/Project/TypeCheck.fs"
-   #load "/Users/tinelli/Desktop/Project/Inter.fs"
 
+
+#r "C:\Users\gorec\Desktop\Project\\bin\FsLexYacc.Runtime.dll"
+#load "C:\Users\gorec\Desktop\Project\Absyn.fs" 
+#load "C:\Users\gorec\Desktop\Project\Parser.fs"
+#load "C:\Users\gorec\Desktop\Project\Lexer.fs" 
+#load "C:\Users\gorec\Desktop\Project\Parse.fs" 
+#load "C:\Users\gorec\Desktop\Project\Inter.fs"
 
 open Absyn
+
 
 
 let fromString = Parse.fromString
@@ -30,11 +30,12 @@ let eval = Inter.eval
 let run = Inter.run
 let crun e = run (check e)
 
-let ex = fromString "
-  local var x = false in 2 * x end
-"
+
+
+let ex = fromString "local var x = false in 2 * x end"
 
 check ex
+
 
 
 check (fromString "fn (x:int) => x end")

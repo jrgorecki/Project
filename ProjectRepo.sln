@@ -8,8 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Absyn.fs = Absyn.fs
 		Env.fs = Env.fs
 		Inter.fs = Inter.fs
+		Lexer.fs = Lexer.fs
 		Lexer.fsl = Lexer.fsl
 		Parse.fs = Parse.fs
+		Parser.fs = Parser.fs
 		Parser.fsy = Parser.fsy
 		testing.fsx = testing.fsx
 	EndProjectSection

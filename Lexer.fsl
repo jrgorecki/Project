@@ -15,53 +15,52 @@ let lexemeAsString lexbuf =
 
 
 
-
 }
 
-let name = ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*
-let nat = ['0'-'9']+
+
 
 rule Token = parse
-| [' ' '\t' '\r']   { Token lexbuf } 
-| '\n'			{ lexbuf.EndPos <- lexbuf.EndPos.NextLine; Token lexbuf }
-| "if"          { IF }
-| "then"        { THEN }
-| "else"        { ELSE }
-| "not"			{ NOT }
-| "rec"			{ REC }
-| "hd"          { HD }
-| "tl"          { TL }
-| "ise"         { ISE }
-| "null"		{ NULL }
-| "print"       { PRINT }
-| "local"       { LOCAL }
-| "in"          { IN }
-| "end"         { END }
-| "fn"          { FN }
-| "=>"          { ANONPTR }
-| '('           { LPAR }
-| ')'           { RPAR }
-| "[]"          { EMPTYLIST }
-| '+'           { PLUS }
-| '-'           { MINUS }
-| '*'           { MULT }
-| '/'           { DIV }
-| '='           { EQUAL }
-| "<>"          { NEQUAL }
-| '<'           { LESSTHAN }
-| "<="          { LESSTHANEQ }
-| "::"          { APPEND }
-| ';'           { SEMICOL }
-| ':'           { COL }
-| "->"          { ARROW }
-| "unit"        { UNIT }
-| "bool"        { BOOL }
-| "int"         { INT }
-| "list"        { LIST }
-| "var"			{ VAR }
-| "true"		{ TRUE }
-| "false"		{ FALSE }
-| "fun"			{ FUN }
-| name          { NAME (lexemeAsString lexbuf) }
-| nat           { NAT NUM (System.Int32.Parse (lexemeAsString lexbuf)) }
-| eof           { EOF }
+	| [' ' '\t' '\r']   { Token lexbuf } 
+	| '\n'			{ lexbuf.EndPos <- lexbuf.EndPos.NextLine; Token lexbuf }
+	| "if"          { IF }
+	| "then"        { THEN }
+	| "else"        { ELSE }
+	| "not"			{ NOT }
+	| "rec"			{ REC }
+	| "hd"          { HD }
+	| "tl"          { TL }
+	| "ise"         { ISE }
+	| "null"		{ NULL }
+	| "print"       { PRINT }
+	| "local"       { LOCAL }
+	| "in"          { IN }
+	| "end"         { END }
+	| "fn"          { FN }
+	| "=>"          { ANONPTR }
+	| '('           { LPAR }
+	| ')'           { RPAR }
+	| "[]"          { EMPTYLIST }
+	| '+'           { PLUS }
+	| '-'           { MINUS }
+	| '*'           { MULT }
+	| '/'           { DIV }
+	| '='           { EQUAL }
+	| "<>"          { NEQUAL }
+	| '<'           { LESSTHAN }
+	| "<="          { LESSTHANEQ }
+	| "::"          { APPEND }
+	| ';'           { SEMICOL }
+	| ':'           { COL }
+	| "->"          { ARROW }
+	| "unit"        { UNIT }
+	| "bool"        { BOOL }
+	| "int"         { INT }
+	| "list"        { LIST }
+	| "var"			{ VAR }
+	| "true"		{ TRUE }
+	| "false"		{ FALSE }
+	| "fun"			{ FUN }
+	| ['a'-'z' 'A'-'Z' '_']['a'-'z' 'A'-'Z' '_' '0'-'9']*          { NAME (lexemeAsString lexbuf) }
+	| ['0'-'9']+           { NAT (System.Int32.Parse (lexemeAsString lexbuf)) }
+	| eof           { EOF }
+	| _				{ failwith "Lexer error: illegal symbol" }
