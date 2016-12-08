@@ -48,7 +48,6 @@
 %token LIST
 %token TRUE
 %token FALSE
-%token FUN
 %token EOF
 
 %right SEMICOL ARROW
@@ -78,6 +77,38 @@ Main:
 Expr:
 	  AtomicE						{$1}
 	| AppE							{$1}
-	| IF Expr THEN Expr ELSE Expr	{If( $2 , $4 , $6 )}
-	| NOT Expr						{Op1("not", $2 )}
-	| 	
+	| IF Expr THEN Expr ELSE Expr	{(If( $2 , $4 , $6 ), AnyT)}
+	| NOT Expr						{(Op1("not", $2 ), BoolT)}
+	| HD Expr						{(Op1("hd", $2), AnyT)}
+	| TL Expr						{(Op1("tl", $2), ListT(AnyT))}
+	| ISE Expr						{(Op1("ise", $2), BoolT}
+	| PRINT Expr					{(Op1("print", $2), UnitT)}
+	| Expr PLUS Expr				{(Op2("+",$1,$3), IntT)}
+	| Expr MINUS Expr				{(Op2("-", $1, $3), IntT)}
+	| Expr MULT Expr				{(Op2("*", $1, $3), IntT)}
+	| Expr DIV Expr					{(Op2("/", $1, $3), IntT)}
+	| Expr EQUAL Expr				{(Op2("=", $1, $3), BoolT)}
+	| Expr NEQUAL Expr				{(Op2("<>", $1, $3), BoolT)}
+	| Expr LESSTHAN Expr			{(Op2("<", $1, $3), BoolT)}	
+	| Expr LESSTHANEQ Expr			{(Op2("<=", $1, $3), BoolT)}
+	| Expr APPEND Expr				{(Op2("::", $1, $3), ListT(AnyT)}
+	| Expr SEMICOL Expr				{(Op2(";", $1, $3), AnyT)}
+
+AtomicE:
+	  Const
+	| NAME							{(Var($1), AnyT)}
+	| LOCAL Bindings IN Expr END	{ (Let($2 , $4) , AnyT)}
+	| FN TypeName ANONPTR Expr END	{(, AnyT)}
+
+
+Bindings:
+	  Binding						{$1}
+	| Binding Bindings	
+
+Binding:
+	  VAR NAME EQUAL Expr			{V($2, $4)}
+	| FUN NAME TypeName EQUAL Expr	{V($2, (Lam( $3, $4)) }
+	| FUN REC NAME TypeName COL Type EQUAL Expr {F($3, $4, $6, $8)}
+
+
+	 
