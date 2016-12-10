@@ -1,6 +1,6 @@
 ﻿%{
- (* File Parser.FSy 
-    Parser for F# type expression sublanguage
+ (* File Parser.Fsy 
+    Parser for HawkFun language
 
     To be completed
   *)
@@ -12,7 +12,7 @@ let rec letHandler l e =
         | h::[] -> (Let(h,e), AnyT)
         | h::t -> (Let(h, (letHandler t e)), AnyT)
         
-%}
+}%
 
 %token <int> NAT 
 %token <string> NAME
@@ -65,7 +65,7 @@ let rec letHandler l e =
 %right APPEND 
 %left PLUS MINUS
 %left MULT DIV
-%nonassoc NOT HD TL ISE LIST PRINT FUN
+%nonassoc NOT HD TL ISE LIST PRINT 
 
 %start Main
 %type <Absyn.expr> Main Expr AtomicE Const
@@ -78,6 +78,7 @@ let rec letHandler l e =
 %%
 Main:
 	Expr EOF {$1}
+;
 
 Expr:
 	  AtomicE						{$1}
@@ -86,7 +87,7 @@ Expr:
 	| NOT Expr						{(Op1("not", $2 ), BoolT)}
 	| HD Expr						{(Op1("hd", $2), AnyT)}
 	| TL Expr						{(Op1("tl", $2), ListT(AnyT))}
-	| ISE Expr						{(Op1("ise", $2), BoolT}
+	| ISE Expr						{(Op1("ise", $2), BoolT)}
 	| PRINT Expr					{(Op1("print", $2), UnitT)}
 	| Expr PLUS Expr				{(Op2("+",$1,$3), IntT)}
 	| Expr MINUS Expr				{(Op2("-", $1, $3), IntT)}
@@ -98,6 +99,7 @@ Expr:
 	| Expr LESSTHANEQ Expr			{(Op2("<=", $1, $3), BoolT)}
 	| Expr APPEND Expr				{(Op2("::", $1, $3), ListT(AnyT)}
 	| Expr SEMICOL Expr				{(Op2(";", $1, $3), AnyT)}
+;
 
 AtomicE:
 	  Const							{$1}
@@ -106,29 +108,34 @@ AtomicE:
 	| FN TypeName ANONPTR Expr END	{(Lam($2, $4), AnyT)}
 	| LPAR Expr RPAR				{($1)}
 	| LPAR EMPTYLIST COL Type RPAR	{(ElistC, $4)}
+;
 
 Const:
 	   NAT							{(Con($1), IntT)}
 	 | TRUE							{(Con(1), BoolT)}
 	 | FALSE						{(Con(0), BoolT)}
 	 | NULL							{(Con(0), UnitT)}
+;
 
 TypeName:
 	  LPAR NAME COL Type RPAR		{($2, $4)}
-
+;
 
 Bindings:
 	  Binding						{[$1]}
 	| Binding Bindings				{[$1]::$2}
+;
 
 Binding:
 	  VAR NAME EQUAL Expr			{V($2, $4)}
 	| FUN NAME TypeName EQUAL Expr	{V($2, (Lam( $3, $4))}
 	| FUN REC NAME TypeName COL Type EQUAL Expr {F($3, $4, $6, $8)}
+;
 
 AppE: 
 	  AtomicE AtomicE				{(Call($1, $2), AnyT)}
 	| AppE AtomicE					{(Call($1, $2), AnyT)}
+;
 
 Type:
 	  UNIT							{UnitT}
@@ -137,6 +144,6 @@ Type:
 	| Type ARROW Type				{ArrowT($1, $3)}
 	| Type LIST						{ListT($1)}
 	| LPAR Type RPAR				{($2)}
-
+;
 
 	 

@@ -1,7 +1,7 @@
 (* File Project/Parse.fs *)
 
 module Parse
-
+ 
 open System
 open System.IO
 open System.Text
