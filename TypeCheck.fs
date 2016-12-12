@@ -1,93 +1,118 @@
-﻿module TypeCheck
+﻿module TypeCheck2
 
 open Absyn
+open Env
 
-type operator =
-    | Cons
-    | IsEmpty
-    | HeadOf
-    | TailOf
-    | Print
-    | Not
-    | IsEqual
-    | IsNotEqual
-    | Plus
-    | Minus
-    | Multiply
-    | Divide
-    | LessThan
-    | LessThanOrEqual
-
-let parseop = function
-    | "::" -> Cons
-    | "ise" -> IsEmpty
-    | "hd" -> HeadOf
-    | "tl" -> TailOf
-    | "print" -> Print
-    | "not" -> Not
-    | "=" -> IsEqual
-    | "<>" -> IsNotEqual
-    | "+" -> Plus
-    | "-" -> Minus
-    | "*" -> Multiply
-    | "/" -> Divide
-    | "<" -> LessThan
-    | "<=" -> LessThanOrEqual
-    | _ -> failwith "Bad operator token."
-
-let assigntype = function
-    | _ -> AnyT
-
-let hasonefromsets (a, b) sets =
-    List.forall (fun (lista, listb) -> 
-        List.contains a lista 
-        && List.contains b listb) 
-        sets
-
-let cando t op = true
-     
-
-let rec check : expr -> expr = function
-    | e, AnyT -> e, assigntype e
-    | e, t -> 
-        let cando s = t |> cando (parseop s)
-        e |> function 
-        | Op1(s, e1) when cando s
-            -> Op1(s, check e1), t
-        | Op2(s, e1, e2) when cando s
-            -> Op2(s, check e1, check e2), t
-        | If((e1, BoolT), e2, e3)
-          when t = BoolT -> (check e2, check e3) |> function
-            | (ce2, ct2), (ce3, ct3) when ct2 = ct3
-                -> If((e1, BoolT), (ce2, ct2), (ce3, ct3)), t
-            | _ -> failwith "Branch type mismatch."
-        | Let(b, e) -> (check e) |> function
-            | ce, ct when t = ct
-                -> Let(b, (ce, ct)), t
-            | _ -> failwith "Binding type mismatch."
-        | Lam((s, bt), e) -> 
-            let rec checkbinding = function
-                | Var(s), t when t <> bt
-                    -> failwith "Lambda variable bound to incorrect type."
-                | Op1(_, e), _ | Let(_, e), _ | Lam(_, e), _
-                    -> checkbinding e
-                | Op2(_, e1, e2), _ | Call(e1, e2), _
-                    -> checkbinding e1
-                    && checkbinding e2
-                | If(e1, e2, e3), _
-                    -> checkbinding e1
-                    && checkbinding e2
-                    && checkbinding e3
-                | _ -> true
-            (check e) |> function
-            | ce, ct when t <> ct || not (checkbinding e)
-                -> failwith "Malformed lambda expression types."
-            | ce, ct -> Lam((s, bt), (ce, ct)), t
-        | Call(e1, e2) -> (check e1, check e2) |> function
-            | (ce1, ArrowT(it, ot)), (ce2, ct2)
-                when ct2 <> it || t <> ot
-                -> failwith "Malformed call types."
-            | ce1, ce2 -> Call(ce1, ce2), t 
-        | e -> e, t
-
-
+let rec check e : expr = 
+    let rec check : expr * (htype env) -> expr = function
+        | (Con(_), AnyT), _
+        | (EListC, AnyT), _
+        | (Let(F(_,_,_,_), _), AnyT), _
+        | (Let(F(_, _, AnyT, _), _), _), _
+        | (Let(F(_, (_, AnyT), _, _), _), _), _
+        | (Lam((_, AnyT), _), _), _
+            -> failwith "Cannot infer the type of a recursive function, lambda binding, or constant."
+        | (Op2("::", (he, ht), (te, tt)), ListT(lt)), env 
+            -> (check ((he, ht), env), check ((te, tt), env)) |> function
+            | (_, ht), (_, tt)
+              when (ht <> tt) || (tt <> lt)
+                -> failwith "Different list element types are not allowed."
+            | (he, ht), (te, tt) 
+                -> Op2("::", (he, ht), (te, tt)), lt
+        | (Let(b, e2), t), env 
+            -> b |> function
+            | V(x, e1) 
+                -> check (e1, env) |> function
+                | _, AnyT -> failwith ("Cannot bind value variable " + x + "as type of AnyT.")
+                | e1, t1
+                    -> check (e2, (x, t1) :: env) |> function
+                    | e2, t2
+                        -> Let(V(x, (e1, t1)), (e2, t2)), t2
+            | F(f, (x, xt), ft, e1)
+                -> check (e1, (f, ArrowT(xt, ft)) :: (x, xt) :: env) |> function
+                | e1, t1
+                  when t1 = ft && t = ArrowT(xt, ft) 
+                    -> check(e2, (f, ArrowT(xt, ft)) :: env) |> function
+                    | _, AnyT
+                        -> failwith ("Cannot bind function variable " + x + "as type of AnyT.")
+                    | e2, t2
+                        -> Let(F(f, (x, xt), ft, (e1, t1)), (e2, t2)), t
+                | _ -> failwith "Function binding expression is incorrectly typed."
+        | (Lam((x, xt), e), t), env
+            -> check (e, (x, xt) :: env) |> function
+            | ce, ct
+              when t = ArrowT(xt, ct)
+                -> Lam((x, xt), e), t
+            | _ -> failwith "Lambda expression is incorrectly typed."
+        | (Call(e2, e1), t), env
+            -> (check (e2, env), check (e1, env)) |> function
+            | (e2, ArrowT(st, rt)), (e1, t1)
+              when t1 = st && t = rt
+                -> Call((e2, ArrowT(st, rt)), (e1, t1)), t
+            | _ -> failwith "Call expression is incorrectly typed."
+        | (If(e, e1, e2), t), env
+            -> (check (e, env), check (e1, env), check (e2, env)) |> function
+            | (e, BoolT), (e1, t1), (e2, t2)
+              when t = t1 && t1 = t2
+                -> If((e, BoolT), (e1, t1), (e2, t2)), t
+            | _ -> failwith "Conditional expression is incorrectly typed."
+        | (Op1("not", e), BoolT), env
+            -> check (e, env) |> function
+            | ce, BoolT
+                -> Op1("not", (ce, BoolT)), BoolT
+            | _ -> failwith "Conditional expression is incorrectly typed."
+        | (Op1("hd", e), ListT(lt)), env
+            -> check (e, env) |> function
+            | ce, ct
+              when ct = lt
+                -> Op1("hd", e), ListT(lt)
+            | _ -> failwith "List head application is incorrectly typed."
+        | (Op1("tl", e), ListT(lt)), env
+            -> check (e, env) |> function
+            | ce, ct
+              when ct = lt
+                -> Op1("tl", e), ListT(lt)
+            | _ -> failwith "List tail application is incorrectly typed."
+        | (Op1("ise", e), BoolT), env
+            -> check (e, env) |> function
+            | ce, ListT(ct)
+                -> Op1("ise", (ce, ListT(ct))), BoolT
+            | _ -> failwith "List equality application is incorrectly typed."
+        | (Op1("print", e), UnitT), env
+            -> Op1("print", check (e, env)), UnitT
+        | (Op2(s, e1, e2), IntT), env
+          when s = "+" || s = "-" || s = "*" || s = "/"
+            -> (check (e1, env), check (e2, env)) |> function
+            | (e1, IntT), (e2, IntT)
+                -> Op2(s, (e1, IntT), (e2, IntT)), IntT
+            | _ -> failwith "Arithmetic application is incorrectly typed."
+        | (Op2(s, e1, e2), BoolT), env
+          when s = "<" || s = "<="
+            -> (check (e1, env), check (e2, env)) |> function
+            | (e1, IntT), (e2, IntT)
+                -> Op2(s, (e1, IntT), (e2, IntT)), BoolT
+            | _ -> failwith "Range application is incorrectly typed."
+        | (Op2(s, e1, e2), BoolT), env
+          when s = "=" || s = "<>"
+            -> (check (e1, env), check (e2, env)) |> function
+            | (e1, t1), (e2, t2)
+              when t1 = t2
+              && List.contains t1 
+                [ BoolT; IntT; UnitT; 
+                  ListT(BoolT); 
+                  ListT(IntT);
+                  ListT(UnitT); ]
+                -> Op2(s, (e1, t1), (e2, t2)), BoolT    
+            | _ -> failwith "Equality application is incorrectly typed."
+        | (Op2(";", e1, e2), t), env
+            -> (check (e1, env), check (e2, env)) |> function
+            | e1, (e2, t2)
+              when t = t2
+                -> Op2(";", e1, (e2, t2)), t
+            | _ -> failwith "Side effect operation is incorrectly typed."
+        | (EListC, t), env
+            -> EListC, t
+        | (Var(x), _), env
+            -> Var(x), lookup env x
+        | _ -> failwith "Expression is malformed."
+    check (e, [])
