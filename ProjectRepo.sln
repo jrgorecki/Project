@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Parser.fsy = Parser.fsy
 		testing.fsx = testing.fsx
 		TypeCheck.fs = TypeCheck.fs
-		TypeCheck2.fs = TypeCheck2.fs
 	EndProjectSection
 EndProject
 Global
