@@ -5,8 +5,8 @@ open Microsoft.FSharp.Text.Lexing
 open Microsoft.FSharp.Text.Parsing.ParseHelpers
 # 1 "Parser.fsy"
 
- (* File Parser.FSy 
-    Parser for F# type expression sublanguage
+ (* File Parser.Fsy 
+    Parser for HawkFun language
 
     To be completed
   *)
@@ -461,7 +461,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 90 "Parser.fsy"
-                                       (Op1("ise", _2), BoolT
+                                       (Op1("ise", _2), BoolT)
                    )
 # 90 "Parser.fsy"
                  : Absyn.expr));
@@ -660,7 +660,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 110 "Parser.fsy"
-                                                      (ElistC, _4)
+                                                       (EListC, _4) 
                    )
 # 110 "Parser.fsy"
                  : Absyn.expr));
@@ -724,7 +724,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 125 "Parser.fsy"
-                                      [_1]
+                                      ([_1])
                    )
 # 125 "Parser.fsy"
                  : Absyn.binding list));
@@ -736,7 +736,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 126 "Parser.fsy"
-                                             [_1]::_2
+                                             ([_1]::_2)
                    )
 # 126 "Parser.fsy"
                  : Absyn.binding list));
@@ -761,7 +761,7 @@ let _fsyacc_reductions ()  =    [|
                 (
                    (
 # 131 "Parser.fsy"
-                                                      V(_2, (Lam( _3, _4))
+                                                      V(_2, (Lam( _3, _5))
                    )
 # 131 "Parser.fsy"
                  : Absyn.binding));

@@ -18,6 +18,8 @@
 #load "C:\Users\gorec\Desktop\Project\Parser.fs"
 #load "C:\Users\gorec\Desktop\Project\Lexer.fs" 
 #load "C:\Users\gorec\Desktop\Project\Parse.fs" 
+#load "C:\Users\gorec\Desktop\Project\Env.fs"
+#load "C:\Users\gorec\Desktop\Project\TypeCheck.fs"
 #load "C:\Users\gorec\Desktop\Project\Inter.fs"
 
 open Absyn
@@ -35,8 +37,6 @@ let crun e = run (check e)
 let ex = fromString "local var x = false in 2 * x end"
 
 check ex
-
-
 
 check (fromString "fn (x:int) => x end")
 

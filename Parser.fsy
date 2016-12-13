@@ -1,4 +1,4 @@
-﻿%{
+%{
  (* File Parser.Fsy 
     Parser for HawkFun language
 
@@ -12,7 +12,7 @@ let rec letHandler l e =
         | h::[] -> (Let(h,e), AnyT)
         | h::t -> (Let(h, (letHandler t e)), AnyT)
         
-}%
+%}
 
 %token <int> NAT 
 %token <string> NAME
@@ -74,7 +74,6 @@ let rec letHandler l e =
 %type <Absyn.binding> Binding 
 %type <Absyn.tname> TypeName
 %type <Absyn.expr> AppE 
-
 %%
 Main:
 	Expr EOF {$1}
@@ -107,7 +106,7 @@ AtomicE:
 	| LOCAL Bindings IN Expr END	{(letHandler($2,$4)) }
 	| FN TypeName ANONPTR Expr END	{(Lam($2, $4), AnyT)}
 	| LPAR Expr RPAR				{($1)}
-	| LPAR EMPTYLIST COL Type RPAR	{(ElistC, $4)}
+	| LPAR EMPTYLIST COL Type RPAR	{ (EListC, $4) }
 ;
 
 Const:
@@ -122,13 +121,13 @@ TypeName:
 ;
 
 Bindings:
-	  Binding						{[$1]}
-	| Binding Bindings				{[$1]::$2}
+	  Binding						{([$1])}
+	| Binding Bindings				{([$1]::$2)}
 ;
 
 Binding:
 	  VAR NAME EQUAL Expr			{V($2, $4)}
-	| FUN NAME TypeName EQUAL Expr	{V($2, (Lam( $3, $4))}
+	| FUN NAME TypeName EQUAL Expr	{V($2, (Lam( $3, $5))}
 	| FUN REC NAME TypeName COL Type EQUAL Expr {F($3, $4, $6, $8)}
 ;
 

@@ -1,4 +1,4 @@
-﻿module TypeCheck2
+﻿module TypeCheck
 
 open Absyn
 open Env
@@ -116,3 +116,6 @@ let rec check e : expr =
             -> Var(x), lookup env x
         | _ -> failwith "Expression is malformed."
     check (e, [])
+
+
+ 
