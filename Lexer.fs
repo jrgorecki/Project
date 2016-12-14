@@ -9,11 +9,11 @@
 module Lexer
 
 open Microsoft.FSharp.Text.Lexing
-open Parser
+open Parser;
 
 let lexemeAsString lexbuf = 
   LexBuffer<char>.LexemeString lexbuf
-
+  
 
 
 
