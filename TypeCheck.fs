@@ -133,6 +133,4 @@ let rec check e : expr =
             -> Con(v), t
         | _ -> failwith "Expression is malformed."
     check (e, [])
-
-
- 
+    
