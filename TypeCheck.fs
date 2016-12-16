@@ -43,6 +43,9 @@ let rec check e : expr =
             | ce, ct
               when t = ArrowT(xt, ct)
                 -> Lam((x, xt), e), t
+            | ce, ct
+              when t = AnyT
+                -> Lam((x, xt), e), ArrowT(xt, ct)
             | _ -> failwith "Lambda expression is incorrectly typed."
         | (Call(e2, e1), t), env
             -> (check (e2, env), check (e1, env)) |> function
