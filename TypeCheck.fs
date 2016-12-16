@@ -17,11 +17,11 @@ let rec check e : expr =
             -> failwith "Cannot infer the type of a recursive function, lambda binding, or constant."
         | (Op2("::", (he, ht), (te, tt)), lt), env 
             -> (check ((he, ht), env), check ((te, tt), env)) |> function
-            //| (_, ht), (_, tt)
-              // when (ht <> tt) || (tt <> ListT(lt))
-              //  -> failwith "Different list element types are not allowed."
+            | (_, ht), (_, tt)
+              when (ListT(ht) <> tt)
+                -> printfn "-- %A, %A, %A" ht tt lt; failwith "Different list element types are not allowed."
             | (he, ht), (te, tt) 
-                -> Op2("::", (he, ht), (te, tt)), ListT(lt)
+                -> printfn "-- cons types: %A, %A, %A" ht tt ListT(lt); Op2("::", (he, ht), (te, tt)), ListT(ht)
         | (Let(b, e2), t), env 
             -> b |> function
             | V(x, e1) 
@@ -54,38 +54,39 @@ let rec check e : expr =
             -> (check (e2, env), check (e1, env)) |> function
             | (e2, ArrowT(st, rt)), (e1, t1)
               when t1 = st && (t = rt || t = AnyT)
-                -> Call((e2, ArrowT(st, rt)), (e1, t1)), rt
+                -> printfn "-- call types 1: %A, %A, %A" st rt t1; Call((e2, ArrowT(st, rt)), (e1, t1)), rt
             | (e2, ArrowT(st, rt)), (e1, t1)
               when t1 = st && t = AnyT
-                -> Call((e2, ArrowT(st, rt)), (e1, t1)), rt
-            | _ -> failwith "Call expression is incorrectly typed."
+                -> printfn "-- call types 2: %A, %A, %A" st rt t1; Call((e2, ArrowT(st, rt)), (e1, t1)), rt
+            | (_, ArrowT(st, rt)), (_, t1) -> printfn "-- %A, %A, %A" st rt t1; failwith "Call expression is incorrectly typed."
+            | _ -> failwith "Call expression is incoreectly typed."
         | (If(e, e1, e2), t), env
             -> (check (e, env), check (e1, env), check (e2, env)) |> function
             | (e, BoolT), (e1, t1), (e2, t2)
               when t1 = t2
                 -> If((e, BoolT), (e1, t1), (e2, t2)), t1
-            | (_, _), (_, t1), (_, t2) -> printfn "%A, %A" t1 t2; failwith "Conditional expression is incorrectly typed."
+            | (_, _), (_, t1), (_, t2) -> printfn "-- %A, %A" t1 t2; failwith "Conditional expression is incorrectly typed."
         | (Op1("not", e), BoolT), env
             -> check (e, env) |> function
             | ce, BoolT
                 -> Op1("not", (ce, BoolT)), BoolT
-            | _ -> failwith "Conditional expression is incorrectly typed."
+            | _ -> failwith "Not expression is incorrectly typed."
         | (Op1("hd", e), lt), env
             -> (check (e, env), lt) |> function
             | (ce, ListT(ct)), AnyT
-                -> Op1("hd", e), ct 
+                -> printfn "-- head type 1: %A" ct; Op1("hd", (ce, ListT(ct))), ct 
             | (ce, ListT(ct)), ListT(ht)
               when ct = ht || ht = AnyT
-                -> Op1("hd", e), ct
+                -> printfn "-- head type 2: %A" ct; Op1("hd", (ce, ListT(ct))), ct
             | _ -> failwith "List head application is incorrectly typed."
         | (Op1("tl", e), lt), env
             -> (check (e, env), lt) |> function
             | (ce, ListT(ct)), AnyT
-                -> Op1("tl", e), ListT(ct)
-            | (ce, ListT(ct)), lt
-              when ListT(ct) = lt || lt = ListT(AnyT)
-                -> Op1("tl", e), ListT(ct)
-            | _ -> failwith "List tail application is incorrectly typed."
+                -> printfn "-- tail type 1: %A" ListT(ct); Op1("tl", (ce, ListT(ct))), ListT(ct)
+            | (ce, ListT(ct)), ListT(lt)
+              when ListT(ct) = ListT(lt) || lt = AnyT
+                -> printfn "-- tail type 2: %A" ListT(ct); Op1("tl", (ce, ListT(ct))), ListT(ct)
+            | (_, ct), lt -> printfn "%A, %A" ct lt; failwith "List tail application is incorrectly typed."
         | (Op1("ise", e), BoolT), env
             -> check (e, env) |> function
             | ce, ListT(ct)
