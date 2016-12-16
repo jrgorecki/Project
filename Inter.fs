@@ -124,6 +124,5 @@ let rec eval : expr -> value env -> value = function
             oper (eval e env)
         | _ -> failwith "Invalid expression."
       
-
-
-let run str = let ex = Parse.fromString str in let wellTypedE = TypeCheck.check ex in eval wellTypedE []
+let run expr =
+    eval (TypeCheck.check expr)
