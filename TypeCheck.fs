@@ -114,6 +114,8 @@ let rec check e : expr =
             -> EListC, t
         | (Var(x), _), env
             -> Var(x), lookup env x
+        | (Con(v), t), _
+            -> Con(v), t
         | _ -> failwith "Expression is malformed."
     check (e, [])
 
