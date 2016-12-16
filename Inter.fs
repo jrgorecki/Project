@@ -53,11 +53,11 @@ let rec eval : expr -> value env -> value = function
         | IntT | BoolT | UnitT 
             -> fun _ -> Int v
         | _ -> failwith "Invalid constant value type."
-    | Op1("print", e), t -> fun env -> (eval e env, t) |> function
-        | Int v, IntT   -> printfn "%i" v; Int 0
-        | v, BoolT      -> printfn "%b" (set v); Int 0
-        | _, UnitT      -> printfn "()"; Int 0
-        | _ -> failwith "Invalid print value."    
+    | Op1("print", e), t -> fun env -> printfn "%s" (toString (eval e env) t); Int 0// |> function
+        // | Int v, IntT   -> printfn "%i" v; Int 0
+        // | v, BoolT      -> printfn "%b" (set v); Int 0
+        // | _, UnitT      -> printfn "()"; Int 0
+        // | _ -> failwith "Invalid print value."    
     | e, _ -> e |> function
         | EListC
             -> fun _ -> List []
@@ -124,5 +124,9 @@ let rec eval : expr -> value env -> value = function
             oper (eval e env)
         | _ -> failwith "Invalid expression."
       
-let run expr =
+
+
+// let run str = let ex = Parse.fromString str in let wellTypedE = TypeCheck.check ex in eval wellTypedE []
+
+let run expr = 
     eval (TypeCheck.check expr)
